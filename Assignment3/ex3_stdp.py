@@ -11,6 +11,7 @@ import nest
 from numpy import *       # for numerical operations
 from pylab import *       # for plotting (matplotlib)
 from pobc_utils import *       # for generating poisson spike trains
+import nest.voltage_trace
 
 nest.set_verbosity("M_WARNING") # surpress too much text output
 
@@ -143,8 +144,10 @@ def perform_simulation(sequence, jitter=0.0, alpha=1.1, Wmax_fact=2, Tsim=200000
     nest.SetStatus(iaf_neuron, nrn_params)
     
     # recorders 
-    spike_detector = nest.Create("spike_detector",params={"withgid": True, "withtime": True})    
-
+    spike_detector1 = nest.Create("spike_detector",params={"withgid": True, "withtime": True})
+    spike_detector2 = nest.Create("spike_detector", params={"withgid": True, "withtime": True})
+    volts = nest.Create("voltmeter")
+    nest.SetStatus(volts, {"label": "voltmeter", "withtime": True, "withgid": True})
 
     # the follwoing creates N input neurons and sets their spike trains during simulation
     spike_generators,input_neurons = construct_input_population(N, jitter, Tsim, sequence)
@@ -170,20 +173,29 @@ def perform_simulation(sequence, jitter=0.0, alpha=1.1, Wmax_fact=2, Tsim=200000
 
     # connect the nodes
     nest.Connect(input_neurons, iaf_neuron, {"rule": "all_to_all"}, syn_spec="syn")
-    nest.Connect(input_neurons, spike_detector)
-
+    nest.Connect(input_neurons, spike_detector1)
+    nest.Connect(iaf_neuron, spike_detector2)
+    nest.Connect(volts, iaf_neuron)
     # run the simulation 
     nest.Simulate(Tsim)
 
     # To extract spikes of input neuons as a list of numpy-arrays, use the
     # following function provided in nnb_utils:
 
-    spikes_in = get_spike_times(spike_detector)
+    spikes_in1 = get_spike_times(spike_detector1)
+    spikes_in2 = get_spike_times(spike_detector2)
+    #plot the spikes
+    figure(1)
+    plot_raster(spikes_in1[:100], Tsim)
+    figure(2)
+    plot_raster(spikes_in1[100:], Tsim)
+    figure(3)
+    plot_raster(spikes_in2, Tsim)
+    figure(4)
+    nest.voltage_trace.from_device(volts)
 
-    #plot the spikes 
-    plot_raster(spikes_in, Tsim)
-
-    return spikes_in # spikes, weight_evolution
+    show()
+    return spikes_in1 # spikes, weight_evolution
 
 def plot_raster(spikes,tmax):
     """
@@ -196,11 +208,11 @@ def plot_raster(spikes,tmax):
         ns = len(sp)
         plot(sp,i*ones(ns),'b.')
         i=i+1
-    show()
+
 
 def main():
     print("FUCK PYNEST")
-    perform_simulation(True, jitter=0.0, alpha=1.1, Wmax_fact=2, Tsim=200.0, W=20.0e2)
+    perform_simulation(False, jitter=0.0, alpha=1.1, Wmax_fact=4, Tsim=20000.0, W=2e3)
 
 
 main()
