@@ -103,7 +103,7 @@ def poisson_generator(rate, t_start=0.0, t_stop=1000.0, rng = None):
     
     # less wasteful than double length method above
     n = (t_stop-t_start)/1000.0*rate
-    number = numpy.ceil(n+3*numpy.sqrt(n))
+    number = int(numpy.ceil(n+3*numpy.sqrt(n)))
     if number<100:
         number = min(5+numpy.ceil(2*n),100)
     
@@ -135,3 +135,102 @@ def poisson_generator(rate, t_start=0.0, t_stop=1000.0, rng = None):
         spikes = numpy.resize(spikes,(i,))
 
     return spikes
+
+def plot_figures(fig1,fig2, spikes, weights, inp_spikes, Tsim, filename_fig1, filename_fig2, Tmax_spikes=25):
+    """
+    This function plots two figures for analysis of results
+    fig1,fig2....figure identifiers
+    spikes.......spikes of the output neuron
+    weights......recorded weights over time (column t is the weight vector at recording time index t
+                 The function assumes that weights are recorded every second.
+    inp_spikes...spikes of input neurons as list of numpy arrays (use get_spike_times)
+    Tsim.........simulation time
+    filename_figX...filenames of figures to save figures to file
+    Tmax_spikes.....Computation of spike cross-correlations may take some time
+                    Use Tmax_spikes to compute the cc only over time (0,Tmax_spike)
+    """
+    # crop spike times in order to save time during convolution:
+    Nin = len(weights)
+    Nin2 = int(Nin/2)
+    spikes = spikes[spikes<Tmax_spikes]
+    for i in range(inp_spikes.__len__()):
+        inp_spikes[i] = inp_spikes[i][inp_spikes[i]<Tmax_spikes]
+
+    f = figure(fig1, figsize = (8,3.6   ))
+    f.subplots_adjust(top= 0.89, left = 0.09, bottom = 0.15, right = 0.93, hspace = 0.30, wspace = 0.40)
+    
+    ax = subplot(1,2,1)
+    imshow(weights, aspect = 'auto')
+    ylim(0,Nin+1)
+    xlabel('time [sec]')
+    colorbar()
+    ylabel('synapse id.')
+    text(-0.19, 1.07, 'A', fontsize = 'large', transform = ax.transAxes)
+    
+    ax = subplot(1,2,2)
+    mean_up = mean(weights[0:Nin2,:], axis = 0)
+    mean_down = mean(weights[Nin2:Nin,:], axis = 0)
+    std_up = std(weights[0:Nin2,:], axis = 0)
+    std_down = std(weights[Nin2:Nin,:], axis = 0)
+    plot(linspace(0,Tsim,len(mean_up)), mean_up, color = 'b')
+    plot(linspace(0,Tsim,len(mean_down)), mean_down, color = 'r')
+    errorbar(linspace(0, Tsim, len(mean_up))[::20], mean_up[::20], std_up[::20], fmt = 'b.')
+    errorbar(linspace(0, Tsim, len(mean_down))[::20], mean_down[::20], std_down[::20], fmt = 'r.')
+    xlabel('time [sec]')
+    ylabel('avg. syn. weight')
+    text(-0.19, 1.07, 'B', fontsize = 'large', transform = ax.transAxes)
+    
+    savefig(filename_fig1)       
+
+    f = figure(fig2, figsize = (8,8))
+    f.subplots_adjust(top= 0.93, left = 0.09, bottom = 0.12, right = 0.95, hspace = 0.40, wspace = 0.40)
+    ax = subplot(2,2,1)
+    corr = avg_cross_correlate_spikes(inp_spikes[0:Nin2], 200, binsize = 5e-3, corr_range = (-100e-3,100e-3))
+    plot(arange(-100e-3,101e-3, 5e-3), corr, marker = 'o')
+    xlim(-100e-3,100e-3)
+    xticks(list(arange(-0.1,0.101,0.05)), [ '-0.1', '-0.05', '0', '0.05', '0.1' ] )
+    xlabel('time lag [sec]')
+    axvline(0.0)
+    title('input correl. first group', fontsize = 15)
+    ylabel('counts/bin')
+    text(-0.19, 1.07, 'A', fontsize = 'large', transform = ax.transAxes)
+
+    
+    
+    ax = subplot(2,2,2)
+    corr = avg_cross_correlate_spikes(inp_spikes[Nin2:Nin], 200, binsize = 5e-3, corr_range = (-100e-3,100e-3))
+    plot(arange(-100e-3,101e-3, 5e-3), corr, marker = 'o')
+    xlim(-100e-3,100e-3)
+    xticks(list(arange(-0.1,0.101,0.05)), [ '-0.1', '-0.05', '0', '0.05', '0.1' ] )
+    xlabel('time lag [sec]')
+    ylabel('counts/bin')
+    title('input correl. second group', fontsize = 15)
+    axvline(0.0)
+    text(-0.19, 1.07, 'B', fontsize = 'large', transform = ax.transAxes)
+
+    
+    ax = subplot(2,2,3)
+    corr = avg_cross_correlate_spikes_2sets(inp_spikes[0:Nin2], [spikes], binsize = 5e-3, corr_range = (-100e-3,100e-3))
+    plot(arange(-100e-3,101e-3, 5e-3), corr, marker = 'o')
+    xlim(-100e-3,100e-3)
+    xticks(list(arange(-0.1,0.101,0.05)), [ '-0.1', '-0.05', '0', '0.05', '0.1' ] )
+    xlabel('time lag [sec]')
+    title('input-output correl. first group', fontsize = 15)
+    ylabel('counts/bin')
+    axvline(0.0)
+    text(-0.19, 1.07, 'C', fontsize = 'large', transform = ax.transAxes)
+
+    
+    ax = subplot(2,2,4)
+    corr = avg_cross_correlate_spikes_2sets(inp_spikes[Nin2:Nin], [spikes], binsize = 5e-3, corr_range = (-100e-3,100e-3))
+    plot(arange(-100e-3,101e-3, 5e-3), corr, marker = 'o')
+    xlim(-100e-3,95e-3)
+    xticks(list(arange(-0.1,0.101,0.05)), [ '-0.1', '-0.05', '0', '0.05', '0.1' ] )
+    title('input-output correl. second group', fontsize = 15)
+    xlabel('time lag [sec]')
+    ylabel('counts/bin')
+    axvline(0.0)
+    text(-0.19, 1.07, 'D', fontsize = 'large', transform = ax.transAxes)
+
+    savefig(filename_fig2)
+
