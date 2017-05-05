@@ -1,7 +1,7 @@
 #from numpy import array, log
 import numpy
+from pylab import *
 from numpy import *
-from pylab import find
 import nest
 
 def get_spike_times(spike_rec):
@@ -28,12 +28,13 @@ def cross_correlate_spikes(s1, s2, binsize, corr_range):
     Nbins_h = round(Nbins/2)
     corr = zeros(Nbins+1)
     s1a = append(s1,inf)
+
     for t in s2:
 	    idx = 0
 	    while s1a[idx]<t+cr_lo:
 		    idx +=1
 	    while s1a[idx]<t+cr_hi:
-		    idxc = int(round((t-s1a[idx])/binsize)+Nbins_h)
+		    idxc = int((t-s1a[idx])/binsize+Nbins_h) #HERE
 		    corr[idxc] += 1
 		    idx +=1
     return corr
@@ -64,12 +65,12 @@ def avg_cross_correlate_spikes(spikes, num_pairs, binsize, corr_range):
 
 def avg_cross_correlate_spikes_2sets(spikes1,spikes2, binsize, corr_range):
     s1 = spikes1[0]
-    s2 = spikes2[0]
+    s2 = spikes2    #HERE
     corr = cross_correlate_spikes(s1, s2, binsize, corr_range)
     for i in range(1,len(spikes1)):
         for j in range(1,len(spikes2)):
             s1 = spikes1[i]
-            s2 = spikes[j]
+            s2 = spikes2     #HERE
             corr += cross_correlate_spikes(s1, s2, binsize, corr_range)
     return corr
 
@@ -152,9 +153,10 @@ def plot_figures(fig1,fig2, spikes, weights, inp_spikes, Tsim, filename_fig1, fi
     # crop spike times in order to save time during convolution:
     Nin = len(weights)
     Nin2 = int(Nin/2)
-    spikes = spikes[spikes<Tmax_spikes]
+    spikes = transpose(spikes)
+    spikes = spikes[:Tmax_spikes] #HERE keep the first Tmax spikes
     for i in range(inp_spikes.__len__()):
-        inp_spikes[i] = inp_spikes[i][inp_spikes[i]<Tmax_spikes]
+        inp_spikes[i] = inp_spikes[i][:Tmax_spikes] #HERE
 
     f = figure(fig1, figsize = (8,3.6   ))
     f.subplots_adjust(top= 0.89, left = 0.09, bottom = 0.15, right = 0.93, hspace = 0.30, wspace = 0.40)
@@ -210,7 +212,8 @@ def plot_figures(fig1,fig2, spikes, weights, inp_spikes, Tsim, filename_fig1, fi
 
     
     ax = subplot(2,2,3)
-    corr = avg_cross_correlate_spikes_2sets(inp_spikes[0:Nin2], [spikes], binsize = 5e-3, corr_range = (-100e-3,100e-3))
+    print(shape(spikes))
+    corr = avg_cross_correlate_spikes_2sets(inp_spikes[0:Nin2], spikes, binsize = 5e-3, corr_range = (-100e-3,100e-3))#HERE
     plot(arange(-100e-3,101e-3, 5e-3), corr, marker = 'o')
     xlim(-100e-3,100e-3)
     xticks(list(arange(-0.1,0.101,0.05)), [ '-0.1', '-0.05', '0', '0.05', '0.1' ] )
@@ -222,7 +225,7 @@ def plot_figures(fig1,fig2, spikes, weights, inp_spikes, Tsim, filename_fig1, fi
 
     
     ax = subplot(2,2,4)
-    corr = avg_cross_correlate_spikes_2sets(inp_spikes[Nin2:Nin], [spikes], binsize = 5e-3, corr_range = (-100e-3,100e-3))
+    corr = avg_cross_correlate_spikes_2sets(inp_spikes[Nin2:Nin], spikes, binsize = 5e-3, corr_range = (-100e-3,100e-3)) #HERE
     plot(arange(-100e-3,101e-3, 5e-3), corr, marker = 'o')
     xlim(-100e-3,95e-3)
     xticks(list(arange(-0.1,0.101,0.05)), [ '-0.1', '-0.05', '0', '0.05', '0.1' ] )

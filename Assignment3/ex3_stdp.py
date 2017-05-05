@@ -172,28 +172,34 @@ def perform_simulation(sequence, jitter=0.0, alpha=1.1, Wmax_fact=2, Tsim=200000
     nest.CopyModel("stdp_synapse", "syn", syn_param)
 
     # connect the nodes
-    nest.Connect(input_neurons, iaf_neuron, {"rule": "all_to_all"}, syn_spec="syn")
+    nest.Connect(input_neurons, iaf_neuron, {"rule": "all_to_all"} , syn_spec="syn")
     nest.Connect(input_neurons, spike_detector1)
     nest.Connect(iaf_neuron, spike_detector2)
     nest.Connect(volts, iaf_neuron)
-    # run the simulation 
-    nest.Simulate(Tsim)
+    # run the simulation
+    weights = zeros((int(Tsim/1000),N+1))
+    for i in range(int(ceil(Tsim/1000))):
+        nest.Simulate(1000)
+        a = nest.GetConnections(target = iaf_neuron)
+        weights[i] = nest.GetStatus(a,"weight")
+
 
     # To extract spikes of input neuons as a list of numpy-arrays, use the
     # following function provided in nnb_utils:
 
     spikes_in1 = get_spike_times(spike_detector1)
     spikes_in2 = get_spike_times(spike_detector2)
-    #plot the spikes
-    figure(1)
-    plot_raster(spikes_in1[:100], Tsim)
-    figure(2)
-    plot_raster(spikes_in1[100:], Tsim)
-    figure(3)
-    plot_raster(spikes_in2, Tsim)
-    figure(4)
-    nest.voltage_trace.from_device(volts)
 
+    #plot the spikes
+    # figure(1)
+    # plot_raster(spikes_in1[:100], Tsim)
+    # figure(2)
+    # plot_raster(spikes_in1[100:], Tsim)
+    # figure(3)
+    # plot_raster(spikes_in2, Tsim)
+    # figure(4)
+    # nest.voltage_trace.from_device(volts)
+    plot_figures(1, 2, spikes_in2 , weights, spikes_in1 , Tsim, "mean weight to time ", "spikes correlqtions " , Tmax_spikes=25)
     show()
     return spikes_in1 # spikes, weight_evolution
 
@@ -212,7 +218,7 @@ def plot_raster(spikes,tmax):
 
 def main():
     print("FUCK PYNEST")
-    perform_simulation(False, jitter=0.0, alpha=1.1, Wmax_fact=4, Tsim=20000.0, W=2e3)
+    perform_simulation(False, jitter=0.0, alpha=1.1, Wmax_fact=2, Tsim=20000.0, W=2e3)
 
 
 main()
