@@ -18,11 +18,11 @@
   <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="ex3_stdp.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="ex3_stdp.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/ex3_stdp.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2865">
-              <caret line="191" column="0" lean-forward="false" selection-start-line="191" selection-start-column="0" selection-end-line="191" selection-end-column="0" />
+            <state relative-caret-position="-75">
+              <caret line="202" column="4" lean-forward="false" selection-start-line="202" selection-start-column="4" selection-end-line="202" selection-end-column="4" />
               <folding>
                 <element signature="e#318#329#0" expanded="true" />
               </folding>
@@ -30,11 +30,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="pobc_utils.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="pobc_utils.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/pobc_utils.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="510">
-              <caret line="34" column="19" lean-forward="true" selection-start-line="34" selection-start-column="19" selection-end-line="34" selection-end-column="19" />
+            <state relative-caret-position="240">
+              <caret line="213" column="15" lean-forward="false" selection-start-line="213" selection-start-column="15" selection-end-line="213" selection-end-column="15" />
               <folding>
                 <element signature="e#30#42#0" expanded="true" />
               </folding>
@@ -47,8 +47,8 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/ex3_stdp.py" />
         <option value="$PROJECT_DIR$/pobc_utils.py" />
+        <option value="$PROJECT_DIR$/ex3_stdp.py" />
       </list>
     </option>
   </component>
@@ -490,22 +490,22 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ex3_stdp.py">
+    <entry file="file://$PROJECT_DIR$/pobc_utils.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2865">
-          <caret line="191" column="0" lean-forward="false" selection-start-line="191" selection-start-column="0" selection-end-line="191" selection-end-column="0" />
+        <state relative-caret-position="240">
+          <caret line="213" column="15" lean-forward="false" selection-start-line="213" selection-start-column="15" selection-end-line="213" selection-end-column="15" />
           <folding>
-            <element signature="e#318#329#0" expanded="true" />
+            <element signature="e#30#42#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/pobc_utils.py">
+    <entry file="file://$PROJECT_DIR$/ex3_stdp.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="510">
-          <caret line="34" column="19" lean-forward="true" selection-start-line="34" selection-start-column="19" selection-end-line="34" selection-end-column="19" />
+        <state relative-caret-position="-75">
+          <caret line="202" column="4" lean-forward="false" selection-start-line="202" selection-start-column="4" selection-end-line="202" selection-end-column="4" />
           <folding>
-            <element signature="e#30#42#0" expanded="true" />
+            <element signature="e#318#329#0" expanded="true" />
           </folding>
         </state>
       </provider>

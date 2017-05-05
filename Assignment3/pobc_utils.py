@@ -151,8 +151,13 @@ def plot_figures(fig1,fig2, spikes, weights, inp_spikes, Tsim, filename_fig1, fi
                     Use Tmax_spikes to compute the cc only over time (0,Tmax_spike)
     """
     # crop spike times in order to save time during convolution:
+    weights = transpose(weights)  # HERE
+
+
     Nin = len(weights)
     Nin2 = int(Nin/2)
+
+
     spikes = transpose(spikes)
     spikes = spikes[:Tmax_spikes] #HERE keep the first Tmax spikes
     for i in range(inp_spikes.__len__()):
@@ -160,21 +165,24 @@ def plot_figures(fig1,fig2, spikes, weights, inp_spikes, Tsim, filename_fig1, fi
 
     f = figure(fig1, figsize = (8,3.6   ))
     f.subplots_adjust(top= 0.89, left = 0.09, bottom = 0.15, right = 0.93, hspace = 0.30, wspace = 0.40)
-    
+
+
+
     ax = subplot(1,2,1)
     imshow(weights, aspect = 'auto')
-    ylim(0,Nin+1)
+    xlim(0,Tsim/1000.)
     xlabel('time [sec]')
     colorbar()
     ylabel('synapse id.')
     text(-0.19, 1.07, 'A', fontsize = 'large', transform = ax.transAxes)
-    
+
     ax = subplot(1,2,2)
     mean_up = mean(weights[0:Nin2,:], axis = 0)
     mean_down = mean(weights[Nin2:Nin,:], axis = 0)
     std_up = std(weights[0:Nin2,:], axis = 0)
     std_down = std(weights[Nin2:Nin,:], axis = 0)
     plot(linspace(0,Tsim,len(mean_up)), mean_up, color = 'b')
+
     plot(linspace(0,Tsim,len(mean_down)), mean_down, color = 'r')
     errorbar(linspace(0, Tsim, len(mean_up))[::20], mean_up[::20], std_up[::20], fmt = 'b.')
     errorbar(linspace(0, Tsim, len(mean_down))[::20], mean_down[::20], std_down[::20], fmt = 'r.')
@@ -212,7 +220,6 @@ def plot_figures(fig1,fig2, spikes, weights, inp_spikes, Tsim, filename_fig1, fi
 
     
     ax = subplot(2,2,3)
-    print(shape(spikes))
     corr = avg_cross_correlate_spikes_2sets(inp_spikes[0:Nin2], spikes, binsize = 5e-3, corr_range = (-100e-3,100e-3))#HERE
     plot(arange(-100e-3,101e-3, 5e-3), corr, marker = 'o')
     xlim(-100e-3,100e-3)
