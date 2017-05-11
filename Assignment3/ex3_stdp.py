@@ -134,7 +134,9 @@ def perform_simulation(sequence, jitter=2.0, alpha=1.1, Wmax_fact=2, Tsim=200000
                   "V_th": -45.,         # Spike threshold in mV
                   "V_reset": Vresting,  # Reset potential of the membrane in mV
                   "t_ref": 2.,         # refractory time in ms
-                  "tau_minus": 30.      # Membrane time constant in ms
+                  "tau_minus": 30.,      # Membrane time constant in ms
+                  "tau_syn_ex" : 10.,
+                  "tau_syn_in" : 10.
                   }
 
     # creating the neuron
@@ -165,7 +167,7 @@ def perform_simulation(sequence, jitter=2.0, alpha=1.1, Wmax_fact=2, Tsim=200000
                 "mu_plus": 0.,
                 "mu_minus": 0.,
                 "Wmax": Wmax_fact * W, 
-                "weight": W,
+                "weight": W
                 }
 
     # set the parameters 
@@ -191,16 +193,16 @@ def perform_simulation(sequence, jitter=2.0, alpha=1.1, Wmax_fact=2, Tsim=200000
     spikes_in2 = get_spike_times(spike_detector2)
 
     #plot the spikes
-    # figure(1)
-    # plot_raster(spikes_in1[:100], Tsim)
-    # figure(2)
-    # plot_raster(spikes_in1[100:], Tsim)
-    # figure(3)
-    # plot_raster(spikes_in2, Tsim)
+    figure(1)
+    plot_raster(spikes_in1[:100], Tsim)
+    figure(2)
+    plot_raster(spikes_in1[100:], Tsim)
+    figure(3)
+    plot_raster(spikes_in2, Tsim)
     # figure(4)
     # nest.voltage_trace.from_device(volts)
     plot_figures(1, 2, spikes_in2 , weights, spikes_in1 , Tsim, "mean weight to time ", "spikes correlations " , Tmax_spikes=25)
-    
+
     show()
     return spikes_in1 # spikes, weight_evolution
 
@@ -218,8 +220,8 @@ def plot_raster(spikes,tmax):
 
 
 def main():
-    print("FUCK PYNEST")
-    perform_simulation(False, jitter=.002, alpha=1.1, Wmax_fact=2, Tsim=20000.0, W=2e3)
+    print(".!.\FUCK PYNEST/.!.")
+    perform_simulation(False, jitter=.001, alpha=1.1, Wmax_fact=2, Tsim=20000.0, W=2e3) # jitter is in seconds
 
 
 main()
