@@ -201,7 +201,7 @@ def perform_simulation(sequence, jitter=2.0, alpha=1.1, Wmax_fact=2, Tsim=200000
     plot_raster(spikes_in2, Tsim)
     # figure(4)
     # nest.voltage_trace.from_device(volts)
-    # plot_figures(1, 2, spikes_in2 , weights, spikes_in1 , Tsim, "mean weight to time ", "spikes correlations " , Tmax_spikes=25)
+    plot_figures(1, 2, spikes_in2 , weights, spikes_in1 , Tsim, "mean weight to time ", "spikes correlations " , Tmax_spikes=25)
 
     show()
     return spikes_in1 # spikes, weight_evolution
@@ -220,8 +220,9 @@ def plot_raster(spikes,tmax):
 
 
 def main():
-    print(".!.\FUCK PYNEST/.!.")
-    perform_simulation(False, jitter=.001, alpha=1.1, Wmax_fact=2, Tsim=20000.0, W=2e3) # jitter is in seconds
+    #question b
+    perform_simulation(False, jitter=.001, alpha=1.1, Wmax_fact=2, Tsim=200000.0, W=2e3) # jitter is in seconds
+    #question c
 
 
 main()
