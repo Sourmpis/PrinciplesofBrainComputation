@@ -178,6 +178,7 @@ def perform_simulation(sequence, jitter=2.0, alpha=1.1, Wmax_fact=2, Tsim=200000
     nest.Connect(input_neurons, spike_detector1)
     nest.Connect(iaf_neuron, spike_detector2)
     nest.Connect(volts, iaf_neuron)
+
     # run the simulation
     weights = zeros((int(Tsim/1000),N+1))
     for i in range(int(ceil(Tsim/1000))):
@@ -186,7 +187,7 @@ def perform_simulation(sequence, jitter=2.0, alpha=1.1, Wmax_fact=2, Tsim=200000
         weights[i] = nest.GetStatus(a,"weight")
 
 
-    # To extract spikes of input neuons as a list of numpy-arrays, use the
+    # To extract spikes of input neurons as a list of numpy-arrays, use the
     # following function provided in nnb_utils:
 
     spikes_in1 = get_spike_times(spike_detector1)
@@ -220,9 +221,23 @@ def plot_raster(spikes,tmax):
 
 
 def main():
-    #question b
-    perform_simulation(False, jitter=.001, alpha=1.1, Wmax_fact=2, Tsim=200000.0, W=2e3) # jitter is in seconds
-    #question c
+
+    # question 2
+    # perform_simulation(False, jitter=.002, alpha=1.1, Wmax_fact=2, Tsim=200000.0, W=2e3) # jitter is in seconds
+
+    # question 3
+
+    # perform_simulation(False, jitter=.002, alpha=1.0, Wmax_fact=2, Tsim=200000.0, W=2e3)
+    # perform_simulation(False, jitter=.002, alpha=1.3, Wmax_fact=2, Tsim=200000.0, W=2e3)
+    perform_simulation(False, jitter=.002, alpha=2.5, Wmax_fact=2, Tsim=200000.0, W=2e3)
+
+#     question 4
+#     perform_simulation(True, jitter=0.0, alpha=1.1, Wmax_fact=2, Tsim=200000.0, W=2e3)
+#     perform_simulation(True, jitter=0.0, alpha=1.1, Wmax_fact=1.5, Tsim=200000.0, W=2e3)
+
+#     question 5
+#     perform_simulation(True, jitter=0.0, alpha=1., Wmax_fact=1.5, Tsim=200000.0, W=2e3)
+#     perform_simulation(False, jitter=.00, alpha=1.1, Wmax_fact=4, Tsim=200000.0, W=2e3)
 
 
 main()
