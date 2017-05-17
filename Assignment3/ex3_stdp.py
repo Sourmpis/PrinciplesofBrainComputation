@@ -198,8 +198,8 @@ def perform_simulation(sequence, jitter=2.0, alpha=1.1, Wmax_fact=2, Tsim=200000
     plot_raster(spikes_in1[:100], Tsim)
     figure(2)
     plot_raster(spikes_in1[100:], Tsim)
-    figure(3)
-    plot_raster(spikes_in2, Tsim)
+    #figure(3)
+    #plot_raster(spikes_in2, Tsim)
     # figure(4)
     # nest.voltage_trace.from_device(volts)
     plot_figures(1, 2, spikes_in2 , weights, spikes_in1 , Tsim, "mean weight to time ", "spikes correlations " , Tmax_spikes=25)
@@ -229,15 +229,17 @@ def main():
 
     # perform_simulation(False, jitter=.002, alpha=1.0, Wmax_fact=2, Tsim=200000.0, W=2e3)
     # perform_simulation(False, jitter=.002, alpha=1.3, Wmax_fact=2, Tsim=200000.0, W=2e3)
-    perform_simulation(False, jitter=.002, alpha=2.5, Wmax_fact=2, Tsim=200000.0, W=2e3)
+    # perform_simulation(False, jitter=.002, alpha=2.5, Wmax_fact=2, Tsim=200000.0, W=2e3)
 
 #     question 4
 #     perform_simulation(True, jitter=0.0, alpha=1.1, Wmax_fact=2, Tsim=200000.0, W=2e3)
 #     perform_simulation(True, jitter=0.0, alpha=1.1, Wmax_fact=1.5, Tsim=200000.0, W=2e3)
 
 #     question 5
-#     perform_simulation(True, jitter=0.0, alpha=1., Wmax_fact=1.5, Tsim=200000.0, W=2e3)
+#     perform_simulation(False, jitter=.002, alpha=1., Wmax_fact=2, Tsim=400000.0, W=2e3)
 #     perform_simulation(False, jitter=.00, alpha=1.1, Wmax_fact=4, Tsim=200000.0, W=2e3)
+    #perform_simulation(False, jitter=0.0, alpha=1.1, Wmax_fact=1.5, Tsim=200000.0, W=2e3)
+  perform_simulation(False, jitter=.00, alpha=4., Wmax_fact=2, Tsim=200000.0, W=2e3) # jitter is in seconds
 
 
 main()
