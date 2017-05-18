@@ -232,11 +232,11 @@ def main():
     # perform_simulation(False, jitter=.002, alpha=2.5, Wmax_fact=2, Tsim=200000.0, W=2e3)
 
 #     question 4
-     perform_simulation(True, jitter=0.0, alpha=1.1, Wmax_fact=2., Tsim=200000.0, W=2e3)
+    # perform_simulation(True, jitter=0.0, alpha=1.1, Wmax_fact=2., Tsim=200000.0, W=2e3)
     # perform_simulation(True, jitter=0.0, alpha=1.1, Wmax_fact=1.5, Tsim=200000.0, W=2e3)
 
 #     question 5
-    #perform_simulation(False, jitter=.005, alpha=1.1, Wmax_fact=2., Tsim=200000.0, W=2e3)
+    perform_simulation(False, jitter=.03, alpha=1.1, Wmax_fact=2., Tsim=200000.0, W=2e3)
     #perform_simulation(False, jitter=.01, alpha=1.1, Wmax_fact=2., Tsim=200000.0, W=2e3)
     #perform_simulation(True, jitter=0.0, alpha=1., Wmax_fact=2., Tsim=200000.0, W=2e3)
     #perform_simulation(False, jitter=.00, alpha=4., Wmax_fact=2, Tsim=200000.0, W=2e3) # jitter is in seconds
