@@ -141,25 +141,20 @@ def test_readout(w, states, targets):
     # compute error
     y = np.zeros(np.size(yr))
     y[yr >= 0.5] = 1
-    summation = 0
-    for i in range(len(y)):
-        if y[i] !=yr[i]:
-            summation += 1
-
-    err = (1. * summation) / len(targets)
+    err = (1. * sum(y != targets)) / len(targets)
     return err
 
 
 def main():
-    simtime = 10000.  # how long shall we simulate [ms]
+    simtime = 200000.  # how long shall we simulate [ms]
 
     N_rec = 500  # Number of neurons to record from
 
     # Network parameters.
     delay_dict = dict(distribution='normal_clipped', mu=10., sigma=20., low=3., high=200.)
 
-    N_E = 1000  # 2000  # number of excitatory neurons
-    N_I = 250  # 500  # number of inhibitory neurons
+    N_E = 1000  # 1000  # number of excitatory neurons
+    N_I = 250  # 250  # number of inhibitory neurons
     N_neurons = N_E + N_I  # total number of neurons
 
     C_E = 2  # number of excitatory synapses per neuron
@@ -282,7 +277,7 @@ def main():
                     }
     nest.CopyModel("tsodyks_synapse", "II", syn_param_II)  # synapse model for I->I connections
     # connect I to I with II model and fixed indegree C_E. Specify the delay and weight distribution here.
-    nest.Connect(inh,inh,connection_rule_ex,{'model':"II",'weight':{'distribution': 'normal',
+    nest.Connect(inh,inh,connection_rule_in,{'model':"II",'weight':{'distribution': 'normal',
                                                                     'mu': J_II,'sigma': -0.7*J_II },
                                              'delay':delay_dict})
 
@@ -300,7 +295,7 @@ def main():
                                                                   "weight": {"distribution": "uniform", "low": 125., "high": 375.},
                                                                   'delay':delay_dict})
     # connect all recorded E/I neurons to the respective detector
-    nest.Connect(exc[:500],spike_detector_E)
+    nest.Connect(exc,spike_detector_E)
     nest.Connect(inh, spike_detector_I)
     # SIMULATE!! -----------------------------------------------------
     nest.Simulate(simtime)
@@ -312,9 +307,9 @@ def main():
 
     spikes_E = get_spike_times(spike_detector_E)
     number_of_spikes_E = 0
-    for i in range(500):
+    for i in range(N_E):
         number_of_spikes_E += len(spikes_E[i])
-    rate_ex = number_of_spikes_E/500/simtime*1000.
+    rate_ex = number_of_spikes_E/N_E/simtime*1000.
     print(('Excitatory rate   : {:.2f} Hz'.format(rate_ex)))
 
     #compute inhibitory rate
@@ -334,12 +329,12 @@ def main():
 
     # train the readout on 20 randomly chosen training sets
 
-    NUM_TRAIN = 20
-    error = np.zeros((20,))
+    NUM_TRAIN = 30
+    error = np.zeros((NUM_TRAIN,))
     TRAIN_READOUT = True
 
     tau_lsm = 0.020  # [sec]
-    readout_delay = 0.01  # [sec]
+    readout_delay = 0.2  # [sec]
     spike_times = spikes_E  # returns spike times in seconds
     rec_time_start = (dt_stim / 1000 + stim_len / 1000 + readout_delay)  # time of first liquid state [sec]
     times = np.arange(rec_time_start, simtime / 1000, dt_stim / 1000)  # times when liquid states are extracted [sec]
@@ -357,7 +352,7 @@ def main():
 
             w = train_readout(states_train, targets_train, reg_fact=0)
 
-            err = test_readout(w, states, targets)
+            err = test_readout(w, states_test, targets_test)
             # print(err)
             error[i] = err
             # don't forget to add constant component to states for bias

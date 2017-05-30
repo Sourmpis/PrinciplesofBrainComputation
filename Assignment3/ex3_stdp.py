@@ -12,7 +12,7 @@ from numpy import *       # for numerical operations
 from pylab import *       # for plotting (matplotlib)
 from pobc_utils import *       # for generating poisson spike trains
 import nest.voltage_trace
-
+nest.Install("mymodule")
 nest.set_verbosity("M_WARNING") # surpress too much text output
 
 DT = 0.1       # The time step of the simulation [msec]
@@ -161,17 +161,28 @@ def perform_simulation(sequence, jitter=2.0, alpha=1.1, Wmax_fact=2, Tsim=200000
     # creating the synapses
     # parameters
     syn_param = {
-                "alpha": alpha, 
+                "tau_psc": 3.0,
+                "tau_fac": 0.1 * 1000,  # facilitation time constant in ms
+                "tau_rec": 0.045 * 1000,  # recovery time constant in ms
+                "U": 0.16,  # utilization
+                "delay": 0.1,  # transmission delay
+                "u": 0.0,
+                "x": 1.0,
+
+
+                "alpha": alpha,
                 "lambda": 0.005,
-                "tau_plus": 30., 
+                "tau_plus": 30.,
                 "mu_plus": 0.,
                 "mu_minus": 0.,
-                "Wmax": Wmax_fact * W, 
+                "Wmax": Wmax_fact * W,
                 "weight": W
+
+
                 }
 
     # set the parameters 
-    nest.CopyModel("stdp_synapse", "syn", syn_param)
+    nest.CopyModel("my_synapse", "syn", syn_param)
 
     # connect the nodes
     nest.Connect(input_neurons, iaf_neuron, {"rule": "all_to_all"} , syn_spec="syn")
@@ -180,10 +191,10 @@ def perform_simulation(sequence, jitter=2.0, alpha=1.1, Wmax_fact=2, Tsim=200000
     nest.Connect(volts, iaf_neuron)
 
     # run the simulation
-    weights = zeros((int(Tsim/1000),N+1))
+    weights = zeros((int(Tsim/1000),N))
     for i in range(int(ceil(Tsim/1000))):
         nest.Simulate(1000)
-        a = nest.GetConnections(target = iaf_neuron)
+        a = nest.GetConnections(source = input_neurons,target = iaf_neuron)
         weights[i] = nest.GetStatus(a,"weight")
 
 
@@ -203,7 +214,7 @@ def perform_simulation(sequence, jitter=2.0, alpha=1.1, Wmax_fact=2, Tsim=200000
     # figure(4)
     # nest.voltage_trace.from_device(volts)
     plot_figures(1, 2, spikes_in2 , weights, spikes_in1 , Tsim, "mean weight to time ", "spikes correlations " , Tmax_spikes=25)
-
+    print(weights)
     show()
     return spikes_in1 # spikes, weight_evolution
 
@@ -236,7 +247,7 @@ def main():
     # perform_simulation(True, jitter=0.0, alpha=1.1, Wmax_fact=1.5, Tsim=200000.0, W=2e3)
 
 #     question 5
-    perform_simulation(False, jitter=.03, alpha=1.1, Wmax_fact=2., Tsim=200000.0, W=2e3)
+    perform_simulation(False, jitter=.03, alpha=1.1, Wmax_fact=2., Tsim=20000.0, W=2e3)
     #perform_simulation(False, jitter=.01, alpha=1.1, Wmax_fact=2., Tsim=200000.0, W=2e3)
     #perform_simulation(True, jitter=0.0, alpha=1., Wmax_fact=2., Tsim=200000.0, W=2e3)
     #perform_simulation(False, jitter=.00, alpha=4., Wmax_fact=2, Tsim=200000.0, W=2e3) # jitter is in seconds

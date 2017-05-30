@@ -19,7 +19,7 @@ from numpy import *       # for numerical operations
 from pylab import *       # for plotting (matplotlib)
 import nest.raster_plot
 import nest.voltage_trace
-	
+nest.Install('mymodule')
 def avg_firing_rate(spikes, dt, binsize, Tsim, Nneurons):
     """
       Calculates the average firing rate of a set of spike trains.
@@ -101,7 +101,15 @@ def perform_simulation(Nnrn,Nin,Rin,U,D,F,Tsim):
 		 "delay": 0.1,       # transmission delay
 		 "weight": W,
 		 "u": 0.0,
-		 "x": 1.0}
+		 "x": 1.0,
+
+         "alpha": 0.,
+         "lambda": 0.00,
+         "tau_plus": 0.,
+         "mu_plus": 0.,
+         "mu_minus": 0.,
+         "Wmax": 1.
+                 }
     
     # construct IAF neuron population and recorders
     iaf_neurons = nest.Create("iaf_psc_exp",Nnrn)    #we use expodential LIF neurons because it was suggested in the documentation
@@ -113,7 +121,9 @@ def perform_simulation(Nnrn,Nin,Rin,U,D,F,Tsim):
                       "tau_m": 20.,      # Membrane time constant in ms, R_m*tau_m
                       "V_th": -40.,     # Spike threshold in mV
                       "V_reset": Vresting, # Reset potential of the membrane in mV
-		      "t_ref": 2.   # refractory time in ms
+		              "t_ref": 2. , # refractory time in ms
+
+
                       }
     
     nest.SetStatus(iaf_neurons,nrn_params)
@@ -127,7 +137,7 @@ def perform_simulation(Nnrn,Nin,Rin,U,D,F,Tsim):
     noise,input_neurons = construct_input_population(Nin,Rin,0.0001)
 
     # connect input population to IAF population
-    nest.CopyModel("tsodyks_synapse","syn",syn_param)
+    nest.CopyModel("my_synapse","syn",syn_param)
     nest.Connect(input_neurons,iaf_neurons,{"rule": "fixed_indegree", "indegree": 100},syn_spec = "syn")
 
 
@@ -135,9 +145,10 @@ def perform_simulation(Nnrn,Nin,Rin,U,D,F,Tsim):
    
     nest.Connect(volts,[iaf_neurons[0]])    
     nest.Connect(iaf_neurons,spikedetector)
-    
+
     # Perform the simulation for Tsim seconds.
     nest.Simulate(Tsim)
+
     
     # extract spike times and convert to [s] 
    
@@ -239,8 +250,8 @@ def perform_simulation_d(Nnrn,Nin,U,D,F,Tsim):
         nest.Simulate(Tsim / 4)
 
     # extract spike times and convert to [s]
-   
-   
+
+
     dSD = nest.GetStatus(spikedetector,keys="events")[0]
     evs = dSD["senders"]
     ts = dSD["times"]
@@ -255,7 +266,7 @@ def perform_simulation_d(Nnrn,Nin,U,D,F,Tsim):
     binsize = 10
     rate = avg_firing_rate(ts/1000, dt, binsize, 2., Nnrn)
     
-    figure(1)  
+    figure(1)
     t = linspace(0,Tsim/1000.,400)
        
     plot(t,rate)
