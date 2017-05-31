@@ -128,6 +128,7 @@ def train_readout(states, targets, reg_fact=0):
     else:
         w = np.dot(np.dot(pylab.inv(reg_fact * pylab.eye(np.size(states, 1)) + np.dot(states.T, states)), states.T),
                    targets)
+
     return w
 
 
@@ -146,7 +147,7 @@ def test_readout(w, states, targets):
 
 
 def main():
-    simtime = 200000.  # how long shall we simulate [ms]
+    simtime = 20000.  # how long shall we simulate [ms]
 
     N_rec = 500  # Number of neurons to record from
 
@@ -201,9 +202,9 @@ def main():
     stim_len = 50.  #[ms]
     Rs = 200.  #[Hz]
     # this is for ex 4A
-    # inp_spikes, targets = generate_stimuls_xor(dt_stim, stim_len, Rs, simtime)
+    inp_spikes, targets = generate_stimuls_xor(dt_stim, stim_len, Rs, simtime)
     # this is for ex 4B
-    inp_spikes, targets = generate_stimuls_mem(dt_stim, stim_len, Rs, simtime)
+    # inp_spikes, targets = generate_stimuls_mem(dt_stim, stim_len, Rs, simtime)
 
     # create two spike generators,
     # set their spike_times of i-th generator to inp_spikes[i]
@@ -291,7 +292,7 @@ def main():
     # distribute weights uniformly in (2.5*J_EE, 7.5*J_EE)
 
     connection_rule_input = {'rule': 'fixed_outdegree', 'outdegree':C_inp}
-    nest.Connect([spike_generators[0]],exc,connection_rule_input,{'model':'static_synapse',
+    nest.Connect(spike_generators,exc,connection_rule_input,{'model':'static_synapse',
                                                                   "weight": {"distribution": "uniform", "low": 125., "high": 375.},
                                                                   'delay':delay_dict})
     # connect all recorded E/I neurons to the respective detector
@@ -329,33 +330,52 @@ def main():
 
     # train the readout on 20 randomly chosen training sets
 
-    NUM_TRAIN = 30
+    NUM_TRAIN = 20
     error = np.zeros((NUM_TRAIN,))
     TRAIN_READOUT = True
 
-    tau_lsm = 0.020  # [sec]
-    readout_delay = 0.2  # [sec]
+    tau_lsm = 0.50  # [sec]
+    # readout_delay = 0.01  # [sec]
     spike_times = spikes_E  # returns spike times in seconds
-    rec_time_start = (dt_stim / 1000 + stim_len / 1000 + readout_delay)  # time of first liquid state [sec]
-    times = np.arange(rec_time_start, simtime / 1000, dt_stim / 1000)  # times when liquid states are extracted [sec]
 
-    print("Extract Liquid States...")
+    readout_delay = np.linspace(5,200,20)
+    mean_error = np.zeros(len(readout_delay), )
+    std_error = np.zeros(len(readout_delay), )
 
-    states = get_liquid_states(spike_times, times, tau_lsm)
+    for l, k in enumerate(readout_delay):
+
+        rec_time_start = (dt_stim / 1000 + stim_len / 1000 + k/1000)  # time of first liquid state [sec]
+        times = np.arange(rec_time_start, simtime / 1000, dt_stim / 1000)  # times when liquid states are extracted [sec]
+
+        print("Extract Liquid States...")
+
+        states = get_liquid_states(spike_times, times, tau_lsm)
+        print(np.trace(np.dot(states.T, states)))
+        np.save("states",states)
+        refactor = np.array([0 ])
+        # mean_error = np.zeros(len(refactor), )
+        # std_error = np.zeros(len(refactor), )
+        for j,reg in enumerate(refactor):
+            for i in range(NUM_TRAIN):
+                if TRAIN_READOUT:
 
 
-    for i in range(NUM_TRAIN):
-        if TRAIN_READOUT:
+                    states_train, states_test, targets_train, targets_test = divide_train_test(states, targets, train_frac= 0.8)
 
+                    w = train_readout(states_train, targets_train, reg)
 
-            states_train, states_test, targets_train, targets_test = divide_train_test(states, targets, train_frac= 0.8)
+                    err = test_readout(w, states_test, targets_test)
+                    # print(err)
+                    error[i] = err
+                    # don't forget to add constant component to states for bias
 
-            w = train_readout(states_train, targets_train, reg_fact=0)
+            mean_error[l] =np.mean(error)
+            std_error[l] = np.std(error)
+            print(readout_delay[l], mean_error[l], std_error[l])
+    pylab.plt.plot(readout_delay, mean_error, 'o', linestyle='-')
 
-            err = test_readout(w, states_test, targets_test)
-            # print(err)
-            error[i] = err
-            # don't forget to add constant component to states for bias
-    print(np.mean(error),np.cov(error))
+    pylab.plt.fill_between(readout_delay, mean_error - std_error, mean_error + std_error,alpha=.2)
+
+    pylab.plt.show()
 if __name__ == "__main__":
     main()

@@ -161,14 +161,14 @@ def perform_simulation(sequence, jitter=2.0, alpha=1.1, Wmax_fact=2, Tsim=200000
     # creating the synapses
     # parameters
     syn_param = {
-                "tau_psc": 3.0,
+
+
                 "tau_fac": 0.1 * 1000,  # facilitation time constant in ms
                 "tau_rec": 0.045 * 1000,  # recovery time constant in ms
                 "U": 0.16,  # utilization
                 "delay": 0.1,  # transmission delay
                 "u": 0.0,
                 "x": 1.0,
-
 
                 "alpha": alpha,
                 "lambda": 0.005,
@@ -234,7 +234,7 @@ def plot_raster(spikes,tmax):
 def main():
 
     # question 2
-    #perform_simulation(False, jitter=.01, alpha=1.1, Wmax_fact=2., Tsim=200000.0, W=2e3) # jitter is in seconds
+    perform_simulation(False, jitter=.01, alpha=1.1, Wmax_fact=2., Tsim=20000.0, W=2e3) # jitter is in seconds
 
     # question 3
 
@@ -247,7 +247,7 @@ def main():
     # perform_simulation(True, jitter=0.0, alpha=1.1, Wmax_fact=1.5, Tsim=200000.0, W=2e3)
 
 #     question 5
-    perform_simulation(False, jitter=.03, alpha=1.1, Wmax_fact=2., Tsim=20000.0, W=2e3)
+#     perform_simulation(False, jitter=.03, alpha=1.1, Wmax_fact=2., Tsim=20000.0, W=2e3)
     #perform_simulation(False, jitter=.01, alpha=1.1, Wmax_fact=2., Tsim=200000.0, W=2e3)
     #perform_simulation(True, jitter=0.0, alpha=1., Wmax_fact=2., Tsim=200000.0, W=2e3)
     #perform_simulation(False, jitter=.00, alpha=4., Wmax_fact=2, Tsim=200000.0, W=2e3) # jitter is in seconds
