@@ -147,7 +147,7 @@ def test_readout(w, states, targets):
 
 
 def main():
-    simtime = 20000.  # how long shall we simulate [ms]
+    simtime = 40000.  # how long shall we simulate [ms]
 
     N_rec = 500  # Number of neurons to record from
 
@@ -332,13 +332,14 @@ def main():
 
     NUM_TRAIN = 20
     error = np.zeros((NUM_TRAIN,))
+    train_error = np.zeros((NUM_TRAIN,))
     TRAIN_READOUT = True
 
     tau_lsm = 0.50  # [sec]
     # readout_delay = 0.01  # [sec]
     spike_times = spikes_E  # returns spike times in seconds
 
-    readout_delay = np.linspace(5,200,20)
+    readout_delay = np.linspace(150,150,1)
     mean_error = np.zeros(len(readout_delay), )
     std_error = np.zeros(len(readout_delay), )
 
@@ -352,9 +353,11 @@ def main():
         states = get_liquid_states(spike_times, times, tau_lsm)
         print(np.trace(np.dot(states.T, states)))
         np.save("states",states)
-        refactor = np.array([0 ])
-        # mean_error = np.zeros(len(refactor), )
-        # std_error = np.zeros(len(refactor), )
+        refactor = np.array(np.linspace(0.,5000,10))
+        mean_error = np.zeros(len(refactor), )
+        std_error = np.zeros(len(refactor), )
+        mean_error_train= np.zeros(len(refactor), )
+        std_error_train= np.zeros(len(refactor), )
         for j,reg in enumerate(refactor):
             for i in range(NUM_TRAIN):
                 if TRAIN_READOUT:
@@ -363,18 +366,23 @@ def main():
                     states_train, states_test, targets_train, targets_test = divide_train_test(states, targets, train_frac= 0.8)
 
                     w = train_readout(states_train, targets_train, reg)
-
+                    trainerror = test_readout(w, states_train, targets_train)
                     err = test_readout(w, states_test, targets_test)
                     # print(err)
+                    train_error[i] = trainerror
                     error[i] = err
                     # don't forget to add constant component to states for bias
 
-            mean_error[l] =np.mean(error)
-            std_error[l] = np.std(error)
-            print(readout_delay[l], mean_error[l], std_error[l])
-    pylab.plt.plot(readout_delay, mean_error, 'o', linestyle='-')
+            mean_error[j] =np.mean(error)
+            std_error[j] = np.std(error)
+            mean_error_train[j] = np.mean(train_error)
+            std_error_train[j] = np.std(train_error)
+            # print(refactor[j], mean_error[j], std_error[j])
 
-    pylab.plt.fill_between(readout_delay, mean_error - std_error, mean_error + std_error,alpha=.2)
+    pylab.plt.plot(refactor, mean_error_train, 'o', linestyle='-')
+    pylab.plt.fill_between(refactor, mean_error_train - std_error_train, mean_error_train + std_error_train,alpha=.2)
+    pylab.plt.plot(refactor, mean_error, 'o', linestyle='-')
+    pylab.plt.fill_between(refactor, mean_error - std_error, mean_error + std_error, alpha=.2)
 
     pylab.plt.show()
 if __name__ == "__main__":
